@@ -487,6 +487,9 @@ To resolve this issue, you can either write the entire command on a single line 
 Approach 1: Single Line Command (In this video i will prefer this)
 Simply run the entire command in one line without using backslashes for line continuation:
 eksctl create cluster --name=kastrocluster --region=ap-northeast-1 --zones=ap-northeast-1a,ap-northeast-1c --without-nodegroup
+For ap-south-1 Region use below command
+eksctl create cluster --name=ayushcluster --region=ap-south-1 --zones=ap-south-1a,ap-south-1c --without-nodegroup
+
 
 
 Approach 2: Use PowerShell’s Backtick for Line Continuation
@@ -495,13 +498,19 @@ eksctl create cluster --name=kastrocluster `
                       --region=ap-northeast-1 `
                       --zones=ap-northeast-1a,ap-northeast-1c `
                       --without-nodegroup
+For ap-south-1 Region use below command
+
+eksctl create cluster --name=ayushcluster `
+                      --region=ap-south-1 `
+                      --zones=ap-south-1a,ap-south-1c `
+                      --without-nodegroup
 
 Note: Make sure there is no space after the backtick.
 
 It will take atleast 20-25 minutes for the cluster to create.
 
-To verify the cluster creation ---> Goto Cloud Formation service in AWS ----> You should see a stack got created with the name "kastrocluster". Make sure in the vs code editor the cluster will get created. As said earlier it will take atleast 20 minutes.
-Once the cluster is ready, you will see "EKS Cluster "kastrocluster" in "us-east-1" region is ready" in vs code editor. wait till you see this.
+To verify the cluster creation ---> Goto Cloud Formation service in AWS ----> You should see a stack got created with the name "kastrocluster" or "ayushcluster". Make sure in the vs code editor the cluster will get created. As said earlier it will take atleast 20 minutes.
+Once the cluster is ready, you will see "EKS Cluster "kastrocluster" or "ayushcluster" in "us-east-1" region is ready" in vs code editor. wait till you see this.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Get List of clusters
 eksctl get cluster
@@ -526,6 +535,10 @@ eksctl utils associate-iam-oidc-provider \
 
 (OR)
 eksctl utils associate-iam-oidc-provider --region ap-northeast-1 --cluster kastrocluster --approve
+
+(OR)
+eksctl utils associate-iam-oidc-provider --region ap-south-1 --cluster ayushcluster --approve
+
 
 (OR)
 eksctl utils associate-iam-oidc-provider `
@@ -556,6 +569,10 @@ eksctl create nodegroup --cluster=kastrocluster \
 
 (OR)
 eksctl create nodegroup --cluster=kastrocluster --region=ap-northeast-1 --name=kastrodemo-ng-public1 --node-type=t3.medium --nodes=2 --nodes-min=2 --nodes-max=4 --node-volume-size=20 --ssh-access --ssh-public-key=Prajwal --managed --asg-access --external-dns-access --full-ecr-access --appmesh-access --alb-ingress-access
+
+(OR)
+eksctl create nodegroup --cluster=ayushcluster --region=ap-south-1 --name=ayushdemo-ng-public1 --node-type=t3.medium --nodes=2 --nodes-min=2 --nodes-max=4 --node-volume-size=20 --ssh-access --ssh-public-key=ayush-mumbai --managed --asg-access --external-dns-access --full-ecr-access --appmesh-access --alb-ingress-access
+
 
 (OR)
 eksctl create nodegroup --cluster=kastrocluster `
@@ -589,14 +606,23 @@ eksctl get clusters
 eksctl get nodegroup --cluster=<clusterName>
 eksctl get nodegroup --cluster=kastrocluster
 
+eksctl get nodegroup --cluster=ayushcluster
+
+
 # Delete Node Group
 eksctl delete nodegroup --cluster=<clusterName> --name=<nodegroupName>
 eksctl delete nodegroup --cluster=kastrocluster --name=kastrodemo-ng-public1
+
+eksctl delete nodegroup --cluster=ayushcluster --name=ayushdemo-ng-public1
 
 Step 07: Delete Cluster
 # Delete Cluster
 eksctl delete cluster <clusterName>
 eksctl delete cluster kastrocluster
+
+eksctl delete cluster ayushcluster
+
+
 ********************************************************************************
 ********************************************************************************
 Let us deploy the same application in the EKS cluster also
@@ -637,8 +663,12 @@ Meanwhile execute the below commands in vs code editor
 Used to monitor Kubernetes cluster.
 Additionally, you'll install the node exporter using Helm to collect metrics from your cluster nodes.
 
+ windows helm instalation
+choco install kubernetes-helm
+
 Install Node Exporter using Helm
 To begin monitoring your Kubernetes cluster, you'll install the Prometheus Node Exporter. This component allows you to collect system-level metrics from your cluster nodes. Here are the steps to install the Node Exporter using Helm:
+or
 
 Add the Prometheus Community Helm repository:
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -648,6 +678,9 @@ kubectl create namespace prometheus-node-exporter
 
 Install the Node Exporter using Helm:
 helm install prometheus-node-exporter prometheus-community/prometheus-node-exporter --namespace prometheus-node-exporter
+
+install jq
+choco install jq
 
 Lets continue with load balancer thing of previous step; execute the below in VS code editor
 export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'`
